@@ -7,6 +7,11 @@ Pomodoro App is to help you stay focused & maintain a productive day.
 - Long breaks are allowed after completing 4 pomodors.
 - Breaks start automatically with sound playing on break start & Pomodoro start as well.
 
+![Image of Pomodoro App](https://imgur.com/lyI2vL7.png) 
+
+![Image of Pomodoro App - Short Break](https://imgur.com/ouROI0u.png)
+
+
 ## Installation
 
 Use the package manager [pip](https://pip.pypa.io/en/stable/) to install Pomodoro App.

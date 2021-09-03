@@ -11,7 +11,7 @@ Pomodoro App is to help you stay focused & maintain a productive day.
 
 Use the package manager [pip](https://pip.pypa.io/en/stable/) to install Pomodoro App.
 
-```
+```python
 pip install -r requirements.txt
 #[or]
 pip3 install -r requirements.txt

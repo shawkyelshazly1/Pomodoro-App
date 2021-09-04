@@ -1,1 +1,1 @@
-{"tasks": {}}
+{"tasks": {"1": {"task_title": "task new", "pomodoros": 10}}}

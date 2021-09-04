@@ -1,8 +1,10 @@
 #!/home/shaq/projects/pomodoro/env/bin/python
 
+from pomodoros_tasks import TasksWindow
 import time
+from tkinter.font import BOLD
 from playsound import playsound
-from tkinter.constants import NSEW, TOP
+from tkinter.constants import LEFT, NSEW, TOP
 import tkinter as tk
 import json
 
@@ -15,13 +17,12 @@ class App(tk.Tk):
         self.init_vars()
         self.create_Frames()
         self.create_widgets()
-        self.load_db()
 
     def create_Frames(self):
         self.content = tk.Frame(self, bg='#ff7575')
         self.content.grid(column=0, row=0, sticky='nsew')
-        self.content.grid_columnconfigure((0, 2), weight=1)
-        self.content.grid_rowconfigure((0, 4), weight=1)
+        self.content.grid_columnconfigure((0, 4), weight=1)
+        self.content.grid_rowconfigure((0, 5), weight=1)
 
     def create_widgets(self):
         self.pomodoro_btn = tk.Button(
@@ -30,26 +31,37 @@ class App(tk.Tk):
 
         self.short_break_btn = tk.Button(
             self.content, text="Short Break", border=0, command=self.start_short_break, fg='#fff', bg='#ff7575')
-        self.short_break_btn.grid(column=1, row=0, sticky='n', pady=15)
+        self.short_break_btn.grid(
+            column=1, row=0, sticky='n', pady=15)
 
         self.long_break_btn = tk.Button(
             self.content, text="Long Break", border=0, command=self.start_long_break, fg='#fff', bg='#ff7575')
         self.long_break_btn.grid(column=2, row=0, sticky='n', pady=15)
 
+        self.tasks_window_button = tk.Button(
+            self.content, text='Tasks', border=0, fg='#fff', bg='#ff7575', font=("Helvetica", 12, "bold"), command=lambda: TasksWindow(self))
+        self.tasks_window_button.grid(
+            column=4, row=0, sticky='ne', pady=15, padx=15)
+
+        self.tasks_label = tk.Label(
+            self.content, textvariable=self.task, fg='#fff', bg='#ff7575', font=('Helvetica', 15))
+        self.tasks_label.grid(column=0, columnspan=5,
+                              row=1, sticky='n', pady=10)
+
         self.timer_label = tk.Label(self.content, textvariable=self.timer,
                                     fg='#fff', bg='#ff7575', font=('arial', 90))
         self.timer_label.grid(
-            column=0, row=1, columnspan=3, rowspan=2, sticky='n')
+            column=0, row=2, columnspan=5, rowspan=2, sticky='n')
 
         self.start_button = tk.Button(
             self.content, text="START", fg='#fff', bg='#ff7575', border=0, width=10, font=('arial', 50), command=self.start_timer)
         self.start_button.grid(
-            column=0, row=3, columnspan=3, rowspan=2, sticky='s', pady=20)
+            column=0, row=4, columnspan=5, rowspan=2, sticky='s', pady=20)
 
     def start_pomo(self):
         self.timer.set('25:00')
         self.activity.set('pomo')
-        self.duration.set(1500)
+        self.duration.set(5)
         self.adjust_widgets_color()
 
     def start_long_break(self):
@@ -61,7 +73,7 @@ class App(tk.Tk):
     def start_short_break(self):
         self.timer.set('05:00')
         self.activity.set('short')
-        self.duration.set(300)
+        self.duration.set(5)
         self.adjust_widgets_color()
 
     def adjust_color(self, color):
@@ -71,6 +83,8 @@ class App(tk.Tk):
         self.long_break_btn.configure(background=color)
         self.timer_label.configure(background=color)
         self.start_button.configure(background=color)
+        self.tasks_label.configure(background=color)
+        self.tasks_window_button.configure(background=color)
 
     def adjust_widgets_color(self):
         if self.activity.get() == 'pomo':
@@ -86,8 +100,10 @@ class App(tk.Tk):
         self.duration = tk.IntVar(value=1500)
         self.timer_id = tk.StringVar()
         self.started_flag = False
-        self.pomodoros = 0
-        self.db_object = None
+        self.pomodoros = tk.IntVar(value=0)
+
+        self.task = tk.StringVar(
+            value="Not Working On A Specific Task Pomodoros: " + str(self.pomodoros.get()) + " / NAN ")
 
     def start_timer(self):
         self.started_flag = True
@@ -121,10 +137,10 @@ class App(tk.Tk):
 
     def switch_activity(self):
         if self.activity.get() == 'pomo':
-            self.pomodoros += 1
+            self.pomodoros.set(self.pomodoros.get()+1)
 
         if self.activity.get() == 'pomo':
-            if self.pomodoros % 4 == 0:
+            if self.pomodoros.get() % 4 == 0:
                 playsound('./assets/alarm-bell.mp3')
                 time.sleep(1)
                 self.start_long_break()
@@ -158,42 +174,9 @@ class App(tk.Tk):
         self.switch_controlles()
         self.start_button.configure(text='START', command=self.start_timer)
 
-    def load_db(self):
-        try:
-            with open('db.txt') as json_db:
-                try:
-                    self.data_obj = json.load(json_db)
-                except:
-                    self.data_obj = {}
-                    self.data_obj['tasks'] = {}
-                    with open('db.txt', 'w') as json_db:
-                        json.dump(self.data_obj, json_db)
-
-        except FileNotFoundError:
-            json_db = open('db.txt', 'a+')
-            self.load_db()
-
-    def add_task(self, title, pomodors):
-        id = len(self.data_obj['tasks'])+1
-        task = {id: {'task_title': title, 'pomodoros': pomodors}}
-        self.data_obj['tasks'][id] = task
-        try:
-            with open('db.txt', 'w') as json_db:
-                json.dump(self.data_obj, json_db)
-        except:
-            print('error')
-
-    def remove_task(self, id):
-        self.data_obj['tasks'].pop(str(id))
-        try:
-            with open('db.txt', 'w') as json_db:
-                json.dump(self.data_obj, json_db)
-        except:
-            print('error')
-
 
 if __name__ == "__main__":
     pomodoro_app = App()
     pomodoro_app.title("Pomodoro App")
-    pomodoro_app.geometry("600x400")
+    pomodoro_app.geometry("700x450")
     pomodoro_app.mainloop()

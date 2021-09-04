@@ -1,5 +1,7 @@
+from pomodoros_add_task import AddTaskWindow
 import tkinter as tk
 import json
+from tkinter.constants import E
 from labels import Task
 
 
@@ -8,17 +10,17 @@ class TasksWindow(tk.Toplevel):
         super().__init__(master=master)
         self.master = master
         self.title("Tasks")
-        self.geometry("400x300")
+        self.geometry("500x300")
         self.db_object = None
-        self.create_frame()
-        self.create_widget()
-        self.load_tasks()
         self.grid_columnconfigure((0, 2), weight=1)
+        self.create_frame()
+        self.load_tasks()
+        self.create_widget()
 
     def create_task_label(self, task, id, i,):
         self.task = Task(
             self.content, task['task_title'], task['pomodoros'], id, self)
-        self.task.grid(column=0, row=i, pady=5)
+        self.task.grid(column=0, row=i, pady=5, columnspan=3, sticky='nsew')
 
     def load_db(self):
         try:
@@ -54,12 +56,10 @@ class TasksWindow(tk.Toplevel):
             print('error')
 
     def remove_task(self, id):
-        try:
-            self.data_obj['tasks'].pop(str(id))
-            with open('db.txt', 'w') as json_db:
-                json.dump(self.data_obj, json_db)
-        except:
-            print('error')
+
+        self.data_obj['tasks'].pop(id)
+        with open('db.txt', 'w') as json_db:
+            json.dump(self.data_obj, json_db)
 
     def create_frame(self):
         self.content = tk.Frame(self)
@@ -68,6 +68,6 @@ class TasksWindow(tk.Toplevel):
 
     def create_widget(self):
         self.add_task_button = tk.Button(
-            self, text="Add Task", command=lambda: self.add_task('task new', 10))
+            self, text="New Task", command=lambda: AddTaskWindow(self, self))
         self.add_task_button.grid(
             column=0, row=1, sticky='nsew', columnspan=3, padx=15)

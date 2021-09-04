@@ -11,8 +11,15 @@ class Task(tk.Frame):
         self.pomodoros = tk.Label(
             self, text="Pomodoros: " + str(pomodoros_count) + " 🍅")
         self.delete_button = tk.Button(
-            self, text="Remove", command=lambda: self.controller.remove_task(self.id))
+            self, text="Remove", command=self.delete_task)
+        self.activate_button = tk.Button(
+            self, text="Activate")
 
         self.title.grid(column=0, row=0, sticky='nw', padx=5)
-        self.pomodoros.grid(column=1, row=0, sticky='ne', padx=20)
-        self.delete_button.grid(column=3, row=0, sticky='ne')
+        self.pomodoros.grid(column=1, row=0, sticky='ne', padx=5)
+        self.delete_button.grid(column=2, row=0, sticky='ne')
+        self.activate_button.grid(column=3, row=0, sticky='ne')
+
+    def delete_task(self):
+        self.controller.remove_task(self.id)
+        self.grid_remove()

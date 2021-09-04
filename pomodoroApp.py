@@ -4,6 +4,7 @@ import time
 from playsound import playsound
 from tkinter.constants import NSEW, TOP
 import tkinter as tk
+import json
 
 
 class App(tk.Tk):
@@ -14,6 +15,7 @@ class App(tk.Tk):
         self.init_vars()
         self.create_Frames()
         self.create_widgets()
+        self.load_db()
 
     def create_Frames(self):
         self.content = tk.Frame(self, bg='#ff7575')
@@ -85,6 +87,7 @@ class App(tk.Tk):
         self.timer_id = tk.StringVar()
         self.started_flag = False
         self.pomodoros = 0
+        self.db_object = None
 
     def start_timer(self):
         self.started_flag = True
@@ -154,6 +157,39 @@ class App(tk.Tk):
         self.started_flag = False
         self.switch_controlles()
         self.start_button.configure(text='START', command=self.start_timer)
+
+    def load_db(self):
+        try:
+            with open('db.txt') as json_db:
+                try:
+                    self.data_obj = json.load(json_db)
+                except:
+                    self.data_obj = {}
+                    self.data_obj['tasks'] = {}
+                    with open('db.txt', 'w') as json_db:
+                        json.dump(self.data_obj, json_db)
+
+        except FileNotFoundError:
+            json_db = open('db.txt', 'a+')
+            self.load_db()
+
+    def add_task(self, title, pomodors):
+        id = len(self.data_obj['tasks'])+1
+        task = {id: {'task_title': title, 'pomodoros': pomodors}}
+        self.data_obj['tasks'][id] = task
+        try:
+            with open('db.txt', 'w') as json_db:
+                json.dump(self.data_obj, json_db)
+        except:
+            print('error')
+
+    def remove_task(self, id):
+        self.data_obj['tasks'].pop(str(id))
+        try:
+            with open('db.txt', 'w') as json_db:
+                json.dump(self.data_obj, json_db)
+        except:
+            print('error')
 
 
 if __name__ == "__main__":

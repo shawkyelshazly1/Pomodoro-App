@@ -19,12 +19,12 @@ class TasksWindow(tk.Toplevel):
         self.create_frame()
         self.load_tasks()
         self.create_widget()
+        print(self.active_task_id)
 
     def create_task_label(self, task, id, i,):
         self.task = Task(
             self.content, task['task_title'], task['pomodoros'], id, self)
         self.task.grid(column=0, row=i, pady=5, columnspan=3, sticky='nsew')
-        self.tasks.append(self.task)
 
     def load_db(self):
         try:
@@ -63,10 +63,6 @@ class TasksWindow(tk.Toplevel):
         self.data_obj['tasks'].pop(id)
         with open('db.txt', 'w') as json_db:
             json.dump(self.data_obj, json_db)
-        for task in self.tasks:
-            if task.id == id:
-                self.tasks.remove(task)
-                break
 
     def create_frame(self):
         self.content = tk.Frame(self)
@@ -84,29 +80,16 @@ class TasksWindow(tk.Toplevel):
         self.active_task_id = id
         self.controller.assigned_task = self.data_obj['tasks'].get(id)
         task_title = self.data_obj['tasks'].get(id)['task_title']
-        task_pomos = str(self.data_obj['tasks'].get(id)['pomodoros'])
         self.controller.required_pomodoros.set(
             int(self.data_obj['tasks'].get(id)['pomodoros']))
         self.controller.task.set(
             f'Working On: {task_title}, Pomodoros 🍅: {self.controller.pomodoros.get()} / {self.controller.required_pomodoros.get()}')
-        self.disable_other_tasks()
-        self.update_idletasks()
-        self.update()
-
-    def disable_other_tasks(self):
-        for task in self.tasks:
-            if int(task.id) != int(self.controller.active_task_id):
-                print(self.task.activate_button.cget('text'))
-                self.task.activate_button.configure(text='Activate')
-                print(self.task.activate_button.cget('text'))
-                self.update_idletasks()
-                self.update()
+        self.destroy()
 
     def stop_task(self):
-        self.disable_other_tasks()
-        self.update()
         self.controller.assigned_task = None
         self.controller.required_pomodoros.set(0)
         self.controller.pomodoros.set(0)
         self.controller.task.set(
-            f'Not Working On A Specific Task Pomodoros: " + {str(self.controller.pomodoros.get())} + " / " + {str(self.controller.required_pomodoros.get())}')
+            f'Not Working On A Specific Task, Pomodoros 🍅:  {str(self.controller.pomodoros.get())} / {str(self.controller.required_pomodoros.get())}')
+        self.destroy()

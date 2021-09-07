@@ -30,20 +30,14 @@ class Task(tk.Frame):
         self.grid_remove()
 
     def activate_task(self):
-        print(type(self.id))
-        print(type(self.controller.active_task_id))
         if self.controller.active_task_id == None:
             self.controller.active_task_id = self.id
             self.controller.activate_task(self.id)
-            self.activate_button.configure(text='Stop Task')
 
         else:
             if self.id == self.controller.active_task_id:
                 self.controller.stop_task()
-                self.activate_button.configure(text='Activate')
                 self.controller.active_task_id = None
-
             else:
                 self.controller.active_task_id = self.id
                 self.controller.activate_task(self.id)
-                self.activate_button.configure(text='Stop Task')

@@ -115,6 +115,7 @@ class App(tk.Tk):
         self.update_timer(self.duration.get())
 
     def update_timer(self, duration):
+
         if duration >= 0:
             duration_seconds = duration
             minutes = duration_seconds // 60
@@ -143,6 +144,9 @@ class App(tk.Tk):
             if self.activity.get() == 'pomo':
                 self.pomodoros.set(self.pomodoros.get()+1)
 
+            self.task.set(
+                f"Not Working On A Specific Task Pomodoros:  {str(self.pomodoros.get())} / {str(self.required_pomodoros.get())}")
+
             if self.activity.get() == 'pomo':
                 if self.pomodoros.get() % 4 == 0:
                     playsound('./assets/alarm-bell.mp3')
@@ -164,6 +168,9 @@ class App(tk.Tk):
                 if self.activity.get() == 'pomo':
                     self.pomodoros.set(self.pomodoros.get()+1)
 
+                self.task.set(
+                    f'Working On: {self.assigned_task["task_title"]}, Pomodoros 🍅: {self.pomodoros.get()} / {self.required_pomodoros.get()}')
+
                 if self.activity.get() == 'pomo':
                     if self.pomodoros.get() % 4 == 0:
                         playsound('./assets/alarm-bell.mp3')
@@ -180,6 +187,17 @@ class App(tk.Tk):
                     time.sleep(1)
                     self.start_pomo()
                     self.start_timer()
+            else:
+                self.task.set(
+                    f' {self.assigned_task["task_title"]} Completed, Pomodoros 🍅: {self.pomodoros.get()} / {self.required_pomodoros.get()}')
+                self.start_pomo()
+                self.stop_timer()
+                self.required_pomodoros.set(0)
+                self.pomodoros.set(0)
+                self.assigned_task = None
+                self.active_task_id = None
+                self.strike_through()
+                return
 
     def switch_controlles(self):
         if self.started_flag:
@@ -198,6 +216,13 @@ class App(tk.Tk):
         self.started_flag = False
         self.switch_controlles()
         self.start_button.configure(text='START', command=self.start_timer)
+
+    def strike_through(self):
+        result = ''
+        for c in self.task.get():
+            result += c + '\u0336'
+
+        self.task.set(result)
 
 
 if __name__ == "__main__":

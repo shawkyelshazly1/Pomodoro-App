@@ -39,7 +39,7 @@ class App(tk.Tk):
         self.long_break_btn.grid(column=2, row=0, sticky='n', pady=15)
 
         self.tasks_window_button = tk.Button(
-            self.content, text='Tasks', border=0, fg='#fff', bg='#ff7575', font=("Helvetica", 12, "bold"), command=lambda: TasksWindow(self))
+            self.content, text='Tasks', border=0, fg='#fff', bg='#ff7575', font=("Helvetica", 12, "bold"), command=lambda: TasksWindow(self, self))
         self.tasks_window_button.grid(
             column=4, row=0, sticky='ne', pady=15, padx=15)
 
@@ -101,9 +101,12 @@ class App(tk.Tk):
         self.timer_id = tk.StringVar()
         self.started_flag = False
         self.pomodoros = tk.IntVar(value=0)
+        self.required_pomodoros = tk.IntVar(value=0)
+        self.assigned_task = None
+        self.active_task_id = None
 
         self.task = tk.StringVar(
-            value="Not Working On A Specific Task Pomodoros: " + str(self.pomodoros.get()) + " / NAN ")
+            value="Not Working On A Specific Task Pomodoros: " + str(self.pomodoros.get()) + " / " + str(self.required_pomodoros.get()))
 
     def start_timer(self):
         self.started_flag = True
@@ -136,25 +139,47 @@ class App(tk.Tk):
             self.switch_activity()
 
     def switch_activity(self):
-        if self.activity.get() == 'pomo':
-            self.pomodoros.set(self.pomodoros.get()+1)
+        if self.assigned_task == None:
+            if self.activity.get() == 'pomo':
+                self.pomodoros.set(self.pomodoros.get()+1)
 
-        if self.activity.get() == 'pomo':
-            if self.pomodoros.get() % 4 == 0:
-                playsound('./assets/alarm-bell.mp3')
-                time.sleep(1)
-                self.start_long_break()
-                self.start_timer()
+            if self.activity.get() == 'pomo':
+                if self.pomodoros.get() % 4 == 0:
+                    playsound('./assets/alarm-bell.mp3')
+                    time.sleep(1)
+                    self.start_long_break()
+                    self.start_timer()
+                else:
+                    playsound('./assets/alarm-wood.mp3')
+                    time.sleep(1)
+                    self.start_short_break()
+                    self.start_timer()
             else:
-                playsound('./assets/alarm-wood.mp3')
+                playsound('./assets/alarm-digital.mp3')
                 time.sleep(1)
-                self.start_short_break()
+                self.start_pomo()
                 self.start_timer()
         else:
-            playsound('./assets/alarm-digital.mp3')
-            time.sleep(1)
-            self.start_pomo()
-            self.start_timer()
+            if self.pomodoros.get() < self.required_pomodoros.get():
+                if self.activity.get() == 'pomo':
+                    self.pomodoros.set(self.pomodoros.get()+1)
+
+                if self.activity.get() == 'pomo':
+                    if self.pomodoros.get() % 4 == 0:
+                        playsound('./assets/alarm-bell.mp3')
+                        time.sleep(1)
+                        self.start_long_break()
+                        self.start_timer()
+                    else:
+                        playsound('./assets/alarm-wood.mp3')
+                        time.sleep(1)
+                        self.start_short_break()
+                        self.start_timer()
+                else:
+                    playsound('./assets/alarm-digital.mp3')
+                    time.sleep(1)
+                    self.start_pomo()
+                    self.start_timer()
 
     def switch_controlles(self):
         if self.started_flag:
